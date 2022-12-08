@@ -1,4 +1,4 @@
-package justintom1023.discordbot;
+package com.justintom1023.discordbot;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -35,8 +35,8 @@ public class CwisListener extends ListenerAdapter {
 
 		catch (StringIndexOutOfBoundsException e) {
 
-			String member = event.getMessage().getMember().toString();
-			System.out.println(member.substring(member.indexOf(":") + 1, member.indexOf("(")) + ": Image");
+			System.out.println("StringIndexOutOfBoundsException: "
+					+ event.getMessage().getMember().getNickname() + " posted an image.");
 
 		}
 

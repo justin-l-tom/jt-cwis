@@ -1,4 +1,4 @@
-package justintom1023.discordbot;
+package com.justintom1023.discordbot;
 
 import javax.security.auth.login.LoginException;
 

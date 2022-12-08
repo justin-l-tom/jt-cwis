@@ -1,4 +1,4 @@
-package justintom1023.discordbot.api;
+package com.justintom1023.discordbot.api;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package justintom1023.discordbot;
+package com.justintom1023.discordbot;
 
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

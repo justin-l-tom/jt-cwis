@@ -1,4 +1,4 @@
-package justintom1023.discordbot;
+package com.justintom1023.discordbot;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.justintom1023.discordbot.api.Item;
+import com.justintom1023.discordbot.api.Json;
+import com.justintom1023.discordbot.api.Snippet;
+import com.justintom1023.discordbot.api.Video;
 
-import justintom1023.discordbot.api.Item;
-import justintom1023.discordbot.api.Json;
-import justintom1023.discordbot.api.Snippet;
-import justintom1023.discordbot.api.Video;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class HondaFilter {
@@ -70,18 +70,23 @@ public class HondaFilter {
 				Video video = Json.fromJson(node, Video.class);
 				List<Item> items = video.getItems();
 				Snippet snippet = items.get(0).getSnippet();
-				
+
 				String title = snippet.getTitle();
-				String description = snippet.getDescription();
-				String allTags = "";
-				
-				for (String tags : snippet.getTags()) {
-					
-					allTags += tags;
-					
+				String titleDescTags = "";
+
+				if (snippet.getTags() != null) {
+
+					for (String tags : snippet.getTags()) {
+
+						titleDescTags += tags.toLowerCase();
+
+					}
+
 				}
 
-				if (title.toLowerCase().contains("honda") || description.toLowerCase().contains("honda") || allTags.toLowerCase().contains("honda")) {
+				titleDescTags += title.toLowerCase() + snippet.getDescription().toLowerCase();
+
+				if (titleDescTags.toLowerCase().contains("honda")) {
 
 					String honda = "[member] shared **[video]**, a video about Honda!";
 					event.getChannel().sendMessage(honda.replace("[video]", title).replace("[member]", event.getMember().getAsMention())).queue();
