@@ -9,7 +9,7 @@ Discord is an application that my friends and I use to communicate to each other
 #### The bot can:
 - automatically reply to members (it does not have to be a command)
 - extract and aggregate data from YouTube videos for analysis and insights
-- alerting members of user activity in voice channels
+- alert members of user activity in voice channels
 
 ![Commands](media/demo1.gif)
 
