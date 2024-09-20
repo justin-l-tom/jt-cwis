@@ -8,8 +8,8 @@ Discord is an application that my friends and I use to communicate to each other
 ### Commands
 #### The bot can:
 - automatically reply to members (it does not have to be a command)
-- display how many hours, minutes and seconds are left until it reaches a certain time
-- generate a random number for a member
+- extract and aggregate data from YouTube videos for analysis and insights
+- alerting members of user activity in voice channels
 
 ![Commands](media/demo1.gif)
 
@@ -19,7 +19,7 @@ When sharing a YouTube video the server, the bot can use the YouTube Data API to
 ![YouTube Data API](media/demo2.gif)
 
 ### Notify Members
-While group DMs are more limited than servers, one thing that group DMs can do that servers cannot do is notify others when a member starts a call. However, if the bot is in your server, members can be pinged when at least two users are in a voice channel. This feature can be adjusted or turned off.
+While group chats are more limited than servers, one thing that group chats can do that servers cannot do is notify others when a member starts a call. However, if the bot is in your server, members can be pinged when at least two users are in a voice channel. This feature can be adjusted or turned off.
 
 ![Notify Members](media/demo3.gif)
 
@@ -27,3 +27,8 @@ While group DMs are more limited than servers, one thing that group DMs can do t
 The bot can make announcements at any given time.
 
 ![Announcements](media/demo4.gif)
+
+### Movie Night
+My friends and I love hosting movie nights, but sometimes we struggle to decide what to watch. That’s where the movie voting feature comes in! With "movie night" commands, you can suggest movies, vote on them, or even let the bot randomly select one for you. When a movie is suggested, it's stored in a PostgreSQL database for future reference. We were also able to explore and manage these movie suggestions through a separate web application built with the Spring Framework.
+
+![Movie Night](media/demo5.png)

@@ -14,13 +14,13 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class WarmingUpTheChat extends ListenerAdapter {
+public class DailyAnnouncement extends ListenerAdapter {
 
 	public void onReady(@NotNull ReadyEvent event) {
 
 		ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/New_York"));
 
-		ZonedDateTime nextEvent = now.withHour(14).withMinute(00).withSecond(0);
+		ZonedDateTime nextEvent = now.withHour(20).withMinute(00).withSecond(0);
 
 		if (now.compareTo(nextEvent) > 0) {
 			
@@ -36,7 +36,7 @@ public class WarmingUpTheChat extends ListenerAdapter {
 		
 		schedulerEvent.scheduleAtFixedRate(() -> {
 
-			String message = "Who is warming up the chat?";
+			String message = "Daily message!";
 			JDA jda = event.getJDA();
 			
 			for (Guild guild : jda.getGuilds()) {

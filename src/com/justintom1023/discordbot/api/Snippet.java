@@ -2,6 +2,8 @@ package com.justintom1023.discordbot.api;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Snippet {
 
 	private String title;
@@ -9,6 +11,9 @@ public class Snippet {
 	private String description;
 	
 	private List<String> tags;
+	
+	@JsonProperty("resourceId")
+	private ResourceId resourceId;
 
 	public String getTitle() {
 		return title;
@@ -32,6 +37,14 @@ public class Snippet {
 
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+	
+	public ResourceId getResourceId() {
+		return resourceId;
+	}
+
+	public void setResourceId(ResourceId resourceId) {
+		this.resourceId = resourceId;
 	}
 	
 }

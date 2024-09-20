@@ -5,21 +5,34 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class CwisListener extends ListenerAdapter {
 
-	int counter = 0;
-
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 
 		String messageSent = event.getMessage().getContentRaw();
-
+						
 		try {
+			
+			if (messageSent.contains("https://twitter.com/")) {
 
+				messageSent = messageSent.replace("twitter.com", "vxtwitter.com");
+				event.getChannel().sendMessage(messageSent).queue();
+				
+
+			}
+			
+			else if (messageSent.contains("https://x.com/")) {
+
+				messageSent = messageSent.replace("x.com", "vxtwitter.com");
+				event.getChannel().sendMessage(messageSent).queue();
+
+			}
+			
 			if (messageSent.contains("youtube") || messageSent.contains("youtu.be")) {
-				
-				HondaFilter.hondaFilter(event, messageSent);
-				
+
+				GrabYouTubeData.grabYouTubeData(event, messageSent);
+
 			}
 
-			else if (messageSent.substring(0, 1).equals(Cwis.prefix)) {
+			else if (messageSent.startsWith("!")) {
 
 				Commands.commands(event, messageSent);
 
@@ -27,17 +40,10 @@ public class CwisListener extends ListenerAdapter {
 
 		}
 
-		catch (NullPointerException e) {
-
-			System.out.println("NullPointerException: " + messageSent);
-
-		}
-
 		catch (StringIndexOutOfBoundsException e) {
-
-			System.out.println("StringIndexOutOfBoundsException: "
-					+ event.getMessage().getMember().getNickname() + " posted an image.");
-
+			
+			// handle this however you want (this usually occurs when an image is posted)
+			
 		}
 
 	}

@@ -1,107 +1,99 @@
 package com.justintom1023.discordbot;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Color;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class Commands {
 
 	public static void commands(GuildMessageReceivedEvent event, String messageSent) {
-		
-		if (messageSent.toLowerCase().contains("cwis")) {
-	    	
-	        event.getChannel().sendMessage("```!countdown - When is it 7:00 PM EST?\r\n"
-	        		+ "!fsg - Filtered Seed Glitchless Personal Best\r\n"
-	        		+ "!random - Sends back a random number between 0 and 99\r\n"
-	        		+ "!rsg - Random Seed Glitchless Personal Best\r\n"
-	        		+ "!story - Data analysis of RSG times\r\n```").queue();
-	        
-	    }
-	    
-		else if (messageSent.toLowerCase().contains("rsg")) {
-	    	
-	        event.getChannel().sendMessage("RSG: 16:57 IGT").queue();
-	        
-	    }
-	    
-		else if (messageSent.toLowerCase().contains("fsg")) {
-	    	
-	        event.getChannel().sendMessage("FSG: 6:44 IGT").queue();
-	        
-	    }
-	    
-		else if (messageSent.toLowerCase().contains("random")) {
-	    	
-	    	Random rand = new Random();
-	    	int n = rand.nextInt(100);
-	    	
-	    	if (n <= 50) {
-	    		
-	    		event.getChannel().sendMessage("Bro, it's " + n + " degrees, give me some takis!").queue();
-	    		
-	    	}
-	    	
-	    	else {
-	    		
-	    		event.getChannel().sendMessage("I like my chat above " + n + " degrees!").queue();
-	    		
-	    	}
-	        
-	    }
-	    
-		else if (messageSent.toLowerCase().contains("story")) {
-	    	
-	    	event.getChannel().sendMessage("https://public.tableau.com/app/profile/justin4096/viz/Calamity427sRSGTimes/Story1").queue();
-	        
-	    }
-		
-		else if (messageSent.toLowerCase().contains("countdown")) {
+
+		if (messageSent.toLowerCase().startsWith("!cwis")) {
 			
-			try {
-				
-				Countdown.countdown(event);
-				
-			} catch (ParseException e) {
-				
-				event.getChannel().sendMessage("Please try again later.").queue();
-				
+			EmbedBuilder eb = new EmbedBuilder();
+			eb.setTitle("Cwis");
+			eb.setColor(new Color(130, 144, 149));
+			eb.addField("!hello", "Says hello", false);
+			eb.addField("!days", "Calculates the number of days between a specified date and the current date", false);
+			eb.addField("!random", "Prints out a random number from 0 to 100", false);
+			
+			event.getChannel().sendMessageEmbeds(eb.build()).queue();
+			eb.clearFields();
+			
+			eb.setTitle("#movie-vote #movie-discussion only");
+			eb.setColor(new Color(150, 214, 112));
+			eb.setDescription("These commands can only be used in the movie night channels.");
+			eb.addField("!suggest [MOVIE TITLE GOES HERE]", "Adds a movie to the suggestions list (e.g. !suggest Inception).", false);
+			eb.addField("!random", "A random movie from the suggestions list is chosen.", false);
+			eb.addField("!vote", "Lists all movies from the suggestions list. Buddies can vote by reacting to it with an emoji.", false);
+			
+			event.getChannel().sendMessageEmbeds(eb.build()).queue();
+
+		}
+
+		else if (messageSent.toLowerCase().startsWith("!hello")) {
+
+			event.getChannel().sendMessage("Hello!").queue();
+
+		}
+
+		else if (messageSent.toLowerCase().startsWith("!random")) {
+
+			Random rand = new Random();
+			int n = rand.nextInt(101);
+
+			if (n <= 50) {
+
+				event.getChannel().sendMessage("Bro, it's " + n + " degrees. Give me some takis!").queue();
+
 			}
+
+			else {
+
+				event.getChannel().sendMessage("I like my chat above " + n + " degrees!").queue();
+
+			}
+
+		}
+		
+		else if (messageSent.toLowerCase().startsWith("!days")) {
+			
+			LocalDate startDate = LocalDate.of(2023, 7, 24);
+			LocalDate currentDate = LocalDate.now();
+			
+			long daysSince = ChronoUnit.DAYS.between(startDate, currentDate);
+			
+			event.getChannel().sendMessage(daysSince + "").queue();
 			
 		}
 		
-		else if (messageSent.toLowerCase().contains("move")) {
-	    	
-			Map<String, String> map = new HashMap<String, String>();
-			String voiceChannelId = ""; // voice channel id goes here
-			
-			map.put("", ""); // a member's name and their id goes here
-	    	
-			try {
+		// commands that only work in specific text channels
+		else if (event.getMessage().getTextChannel() == event.getGuild().getTextChannelById("{TEXT CHANNEL ID GOES HERE}")) {
+		
+			if (messageSent.toLowerCase().startsWith("!suggest")) {
 				
-				String[] name = messageSent.split(" ");
-				
-				if (name.length == 2 && map.containsKey(name[1].toLowerCase())) {
-					
-					event.getGuild().moveVoiceMember(event.getGuild().getMemberById(map.get(name[1])),
-							event.getGuild().getVoiceChannelById(voiceChannelId)).queue();
-					
-					event.getMessage().delete().queue();
-					
-				}
+				MovieNight.suggest(event, messageSent);
 				
 			}
 			
-			catch (Exception e) {
+			else if (messageSent.toLowerCase().startsWith("!vote")) {
 				
-				System.out.println("!move: " + messageSent);
+				MovieNight.voteMovie(event, messageSent);
 				
 			}
-	    	
-	    }
-    	
-    }
-	
+			
+			else if (messageSent.toLowerCase().startsWith("!random")) {
+				
+				MovieNight.randomMovie(event, messageSent);
+				
+			}
+
+		}
+
+	}
+
 }
