@@ -6,11 +6,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class Commands {
 
-	public static void commands(GuildMessageReceivedEvent event, String messageSent) {
+	static String movieNightChannelId = "<CHANNEL_ID>";
+	static String textChannelURL = "<CHANNEL_URL>";
+	
+	public static void commands(MessageReceivedEvent event, String messageSent) {
 
 		if (messageSent.toLowerCase().startsWith("!cwis")) {
 			
@@ -24,21 +27,19 @@ public class Commands {
 			event.getChannel().sendMessageEmbeds(eb.build()).queue();
 			eb.clearFields();
 			
-			eb.setTitle("#movie-vote #movie-discussion only");
+			eb.setTitle("#movie-vote #movie-discussion only", textChannelURL);
 			eb.setColor(new Color(150, 214, 112));
-			eb.setDescription("These commands can only be used in the movie night channels.");
+			eb.setDescription("These commands can only be used in the #movie-night chat.");
 			eb.addField("!suggest [MOVIE TITLE GOES HERE]", "Adds a movie to the suggestions list (e.g. !suggest Inception).", false);
 			eb.addField("!random", "A random movie from the suggestions list is chosen.", false);
-			eb.addField("!vote", "Lists all movies from the suggestions list. Buddies can vote by reacting to it with an emoji.", false);
+			eb.addField("!vote", "Lists all movies from the suggestions list. Buddies can vote by reacting to the message with the correct emoji.", false);
 			
 			event.getChannel().sendMessageEmbeds(eb.build()).queue();
 
 		}
 
 		else if (messageSent.toLowerCase().startsWith("!hello")) {
-
 			event.getChannel().sendMessage("Hello!").queue();
-
 		}
 
 		else if (messageSent.toLowerCase().startsWith("!random")) {
@@ -47,19 +48,15 @@ public class Commands {
 			int n = rand.nextInt(101);
 
 			if (n <= 50) {
-
-				event.getChannel().sendMessage("Bro, it's " + n + " degrees. Give me some takis!").queue();
-
+				event.getChannel().sendMessage("It's " + n + " degrees. Give me some takis!").queue();
 			}
 
 			else {
-
 				event.getChannel().sendMessage("I like my chat above " + n + " degrees!").queue();
-
 			}
 
 		}
-		
+
 		else if (messageSent.toLowerCase().startsWith("!days")) {
 			
 			LocalDate startDate = LocalDate.of(2023, 7, 24);
@@ -67,29 +64,22 @@ public class Commands {
 			
 			long daysSince = ChronoUnit.DAYS.between(startDate, currentDate);
 			
-			event.getChannel().sendMessage(daysSince + "").queue();
+			event.getChannel().sendMessage(Long.toString(daysSince)).queue();
 			
 		}
 		
-		// commands that only work in specific text channels
-		else if (event.getMessage().getTextChannel() == event.getGuild().getTextChannelById("{TEXT CHANNEL ID GOES HERE}")) {
+		else if (event.getMessage().getGuildChannel() == event.getGuild().getTextChannelById(movieNightChannelId)) {
 		
-			if (messageSent.toLowerCase().startsWith("!suggest")) {
-				
-				MovieNight.suggest(event, messageSent);
-				
+			if (messageSent.toLowerCase().startsWith("!suggest")) {				
+				MovieNight.suggest(event, messageSent);				
 			}
 			
-			else if (messageSent.toLowerCase().startsWith("!vote")) {
-				
-				MovieNight.voteMovie(event, messageSent);
-				
+			else if (messageSent.toLowerCase().startsWith("!vote")) {				
+				MovieNight.voteMovie(event, messageSent);				
 			}
 			
-			else if (messageSent.toLowerCase().startsWith("!random")) {
-				
-				MovieNight.randomMovie(event, messageSent);
-				
+			else if (messageSent.toLowerCase().startsWith("!random")) {				
+				MovieNight.randomMovie(event, messageSent);				
 			}
 
 		}

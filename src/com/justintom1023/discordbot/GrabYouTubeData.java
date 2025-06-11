@@ -12,43 +12,36 @@ import com.justintom1023.discordbot.api.Item;
 import com.justintom1023.discordbot.api.Snippet;
 import com.justintom1023.discordbot.api.Video;
 
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class GrabYouTubeData {
+	
+	static String botDeployerUserId = "<USER_ID>";
 
-	public static void grabYouTubeData(GuildMessageReceivedEvent event, String messageSent) {
+	public static void grabYouTubeData(MessageReceivedEvent event, String messageSent) {
 
 		try {
 
-			String[] videoURL;
 			String videoId;
 
 			if (messageSent.contains("youtube.com/shorts")) {
-
-				videoURL = messageSent.split("/");
-				videoId = videoURL[4].substring(0, 11);
-
+				videoId = getVideoId(messageSent, "/", 4);
 			}
-			
+
 			else if (messageSent.contains("youtube")) {
-
-				videoURL = messageSent.split("=");
-				videoId = videoURL[1].substring(0, 11);
-
+				videoId = getVideoId(messageSent, "=", 1);
 			}
 
 			else {
-
-				videoURL = messageSent.split("/");
-				videoId = videoURL[3].substring(0, 11);
-
+				videoId = getVideoId(messageSent, "/", 3);
 			}
 			
 			HttpClient httpClient = HttpClient.newHttpClient();
 
+			String key = "<KEY>";
 			HttpRequest getRequest = HttpRequest.newBuilder()
 					.uri(new URI("https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + videoId
-							+ "&key={KEY GOES HERE}")) // I use an environment variable
+							+ "&key=" + key))
 					.build();
 
 			HttpResponse<String> getResponse = httpClient.send(getRequest, BodyHandlers.ofString());
@@ -56,7 +49,8 @@ public class GrabYouTubeData {
 
 			if (responseCode != 200) {
 
-				// handle this however you want
+				event.getJDA().getUserById(botDeployerUserId).openPrivateChannel()
+						.flatMap(channel -> channel.sendMessage("grabYouTubeData: " + responseCode)).queue();
 
 			}
 
@@ -74,22 +68,19 @@ public class GrabYouTubeData {
 				if (snippet.getTags() != null) {
 
 					for (String tags : snippet.getTags()) {
-
 						titleDescTags += tags.toLowerCase();
-
 					}
 
 				}
 				
-				String[] keywords = {"honda", "toyota"};
+				String[] keywords = {"example", "tags"};
 				
-				// This is just an example of what you can do. Get creative!
 				for (int i = 0; i < keywords.length; i++) {
 					
 					if (titleDescTags.matches("(?s).*\\b" + keywords[i] + "\\b.*")) {
 						
-						String botMessage = "I just watched **{video}**. What a great video!";				
-						event.getChannel().sendMessage(botMessage.replace("{video}", title)).queue();
+						String message = "I just watched **{video}**. It was great!";				
+						event.getChannel().sendMessage(message.replace("{video}", title)).queue();
 						break;
 						
 					}
@@ -101,11 +92,17 @@ public class GrabYouTubeData {
 		}
 		
 		catch (Exception e) {
-
-			// handle this however you want
-			
+			event.getJDA().getUserById(botDeployerUserId).openPrivateChannel()
+					.flatMap(channel -> channel.sendMessage("grabYouTubeData: " + messageSent + " " + e)).queue();			
 		}
 
+	}
+	
+	private static String getVideoId(String messageSent, String splitter, int i) {
+		
+		String[] videoURL = messageSent.split(splitter);
+		return videoURL[i].substring(0, 11);
+		
 	}
 
 }

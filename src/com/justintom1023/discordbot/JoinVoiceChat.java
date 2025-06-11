@@ -3,129 +3,99 @@ package com.justintom1023.discordbot;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class JoinVoiceChat extends ListenerAdapter {
 
 	boolean enough = false;
-	String channelId = "{INSERT CHANNEL ID HERE}";
+	String textChannelId = "<TEXT_CHANNEL_ID>";
+	static String botDeployerUserId = "<USER_ID>";
+	static String afkChannelId = "<AFK_CHANNEL_ID>";
 	
-	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+	public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
 
 		try {
+			
+			if (event.getChannelJoined() != null && event.getChannelLeft() != null) {
+				
+				AudioChannel leftChannel = event.getChannelLeft();
+				int memberCountJoined = event.getChannelJoined().getMembers().size();
+				
+				if (leftChannel.getMembers().size() == 0) {					
+					renameWhenEmpty(event, leftChannel.getId());					
+				}
+				
+				if (memberCountJoined == 1) {					
+					oneMemberInVoice(event, event.getChannelJoined().getId());					
+				}
+				
+			}
+			
+			if (event.getChannelJoined() != null) {
+				
+				int memberCount = event.getChannelJoined().getMembers().size();
+				AudioChannel joinedChannel = event.getChannelJoined();
 
-			int memberCount = event.getChannelJoined().getMembers().size();
-			VoiceChannel joinedChannel = event.getChannelJoined();
+				if (!joinedChannel.getId().equals(afkChannelId)) {
 
-			if (!joinedChannel.getId().equals("{AFK CHANNEL ID GOES HERE}")) {
+				
+					if (memberCount == 1) {
+						oneMemberInVoice(event, joinedChannel.getId());
+					}
 
-				if (memberCount == 1) {
+					else if (memberCount >= 2 && enough == false) {
 
-					oneMemberInVoice(event, joinedChannel.getId());
+						event.getGuild().getTextChannelById(textChannelId).sendMessage("Two buddies are in a voice channel!")
+								.queue();						
+						enough = true;
+
+					}
 
 				}
+				
+			}
+			
+			else if (event.getChannelLeft() != null) {
+				
+				AudioChannel leftChannel = event.getChannelLeft();
 
-				else if (memberCount >= 2 && enough == false) {
-
-					event.getGuild().getTextChannelById(channelId)
-							.sendMessage("Two buddies are in a voice channel!").queue();
+				if (!leftChannel.getId().equals(afkChannelId)) {
 					
-					enough = true;
+					int memberCount = leftChannel.getMembers().size();
+
+					if (memberCount == 0) {
+						renameWhenEmpty(event, leftChannel.getId());
+					}
+
+					if (memberCount < 2 && enough == true) {
+						enough = false;
+					}
 
 				}
-
+				
 			}
 
 		}
 
 		catch (IllegalArgumentException | IllegalStateException e) {
-
-			// handle this however you want
-			
+			event.getJDA().getUserById(botDeployerUserId).openPrivateChannel()
+					.flatMap(channel -> channel.sendMessage("onGuildVoiceUpdate: " + e)).queue();			
 		}
 
-	}
-	
-	public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-
-		try {
-
-			VoiceChannel leftChannel = event.getChannelLeft();
-
-			if (!leftChannel.getId().equals("{AFK CHANNEL ID GOES HERE}")) {
-				
-				int memberCount = leftChannel.getMembers().size();
-
-				if (memberCount == 0) {
-
-					renameWhenEmpty(event, leftChannel.getId());
-
-				}
-
-				if (memberCount < 2 && enough == true) {
-
-					enough = false;
-
-				}
-
-			}
-
-		}
-
-		catch (IllegalArgumentException | IllegalStateException e) {
-
-			// handle this however you want
-		
-		}
-
-	}
-	
-	public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-		
-		try {
-			
-			VoiceChannel leftChannel = event.getChannelLeft();
-			int memberCountJoined = event.getChannelJoined().getMembers().size();
-			
-			if (leftChannel.getMembers().size() == 0) {
-				
-				renameWhenEmpty(event, leftChannel.getId());
-				
-			}
-			
-			if (memberCountJoined == 1) {
-				
-				oneMemberInVoice(event, event.getChannelJoined().getId());
-				
-			}
-			
-		}
-		
-		catch (IllegalArgumentException | IllegalStateException e) {
-			
-			// handle this however you want
-			
-		}
-		
 	}
 	
 	private void oneMemberInVoice(GuildVoiceUpdateEvent event, String joinChannelId) {
 		
 		Map<String, String> channelNameMap = new HashMap<>();
-		channelNameMap.put("{VOICE CHANNEL ID 1 GOES HERE}", "1");
-		channelNameMap.put("{VOICE CHANNEL ID 2 GOES HERE}", "2");
-		channelNameMap.put("{VOICE CHANNEL ID 3 GOES HERE}", "3");
+		channelNameMap.put("<VOICE_CHANNEL_ID>", "1");
+		channelNameMap.put("<VOICE_CHANNEL_ID>", "2");
+		channelNameMap.put("<VOICE_CHANNEL_ID>", "3");
 						
-		if (channelNameMap.containsKey(joinChannelId)) {
-			
+		if (channelNameMap.containsKey(joinChannelId)) {			
 			event.getChannelJoined().getManager()
-					.setName(channelNameMap.get(joinChannelId) + " - " + event.getMember().getUser().getName()).queue();
-			
+					.setName(channelNameMap.get(joinChannelId) + " - " + event.getMember().getUser().getName()).queue();			
 		}
 		
 	}
@@ -133,14 +103,12 @@ public class JoinVoiceChat extends ListenerAdapter {
 	private void renameWhenEmpty(GuildVoiceUpdateEvent event, String leftChannelId) {
 		
 		Map<String, String> channelNameMap = new HashMap<>();
-		channelNameMap.put("{VOICE CHANNEL ID 1 GOES HERE}", "1");
-		channelNameMap.put("{VOICE CHANNEL ID 2 GOES HERE}", "2");
-		channelNameMap.put("{VOICE CHANNEL ID 3 GOES HERE}", "3");
+		channelNameMap.put("<VOICE_CHANNEL_ID>", "1");
+		channelNameMap.put("<VOICE_CHANNEL_ID>", "2");
+		channelNameMap.put("<VOICE_CHANNEL_ID>", "3");
 		
-		if (channelNameMap.containsKey(leftChannelId)) {
-			
-		    event.getChannelLeft().getManager().setName(channelNameMap.get(leftChannelId)).queue();
-		    
+		if (channelNameMap.containsKey(leftChannelId)) {			
+		    event.getChannelLeft().getManager().setName(channelNameMap.get(leftChannelId)).queue();		    
 		}
 		
 	}

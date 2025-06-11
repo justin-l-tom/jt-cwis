@@ -7,14 +7,13 @@ import java.util.TimerTask;
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class TopOfTheHour extends ListenerAdapter {
 
-	// I use an environment variable
-	String serverId = "";
-	String textChannelId = "";
+	String serverId = "<SERVER_ID>";
+	String textChannelId = "<TEXT_CHANNEL_ID>";
 
 	public void onReady(@NotNull ReadyEvent event) {
 
@@ -26,10 +25,9 @@ public class TopOfTheHour extends ListenerAdapter {
 			@Override
 			public void run() {
 
-				String message = "This message gets sent at the top of every hour.";
+				String message = "Start rolling!";
 
 				Guild guild = event.getJDA().getGuildById(serverId);
-
 				guild.getTextChannelById(textChannelId).sendMessage(message).queue();
 
 			}

@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class DailyAnnouncement extends ListenerAdapter {
@@ -22,10 +24,8 @@ public class DailyAnnouncement extends ListenerAdapter {
 
 		ZonedDateTime nextEvent = now.withHour(20).withMinute(00).withSecond(0);
 
-		if (now.compareTo(nextEvent) > 0) {
-			
-			nextEvent = nextEvent.plusDays(1);
-			
+		if (now.compareTo(nextEvent) > 0) {			
+			nextEvent = nextEvent.plusDays(1);			
 		}
 
 		Duration durationUntilEvent = Duration.between(now, nextEvent);
@@ -41,7 +41,18 @@ public class DailyAnnouncement extends ListenerAdapter {
 			
 			for (Guild guild : jda.getGuilds()) {
 				
-				guild.getDefaultChannel().sendMessage(message).queue();
+				GuildChannel defaultChannel = guild.getDefaultChannel();
+
+				if (defaultChannel instanceof TextChannel) {
+					
+					TextChannel textChannel = (TextChannel) defaultChannel;
+					textChannel.sendMessage(message).queue();
+					
+				}
+
+				else {					
+					System.out.println("Default channel is not a text channel for guild: " + guild.getName());					
+				}
 				
 			}
 

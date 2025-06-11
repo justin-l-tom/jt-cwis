@@ -21,16 +21,16 @@ import com.justintom1023.discordbot.api.Movie;
 import com.justintom1023.discordbot.api.MovieSearch;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class MovieNight extends ListenerAdapter {
 
 	static HttpClient httpClient = HttpClient.newHttpClient();
 	static Gson gson = new Gson();
-	static String[] emojis = {"🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮"};
 	
-	public static void suggest(GuildMessageReceivedEvent event, String messageSent) {
+	public static void suggest(MessageReceivedEvent event, String messageSent) {
 
 		try {
 									
@@ -72,20 +72,16 @@ public class MovieNight extends ListenerAdapter {
 		}
 		
 		catch (ArrayIndexOutOfBoundsException e) {
-			
 			event.getChannel().sendMessage("Not a valid movie.").queue();
-			
 		}
 
 		catch (URISyntaxException | IOException | InterruptedException e) {
-
 			// handle this however you want
-
 		}
 		
 	}
 	
-	public static void voteMovie(GuildMessageReceivedEvent event, String messageSent) {
+	public static void voteMovie(MessageReceivedEvent event, String messageSent) {
 		
 		try {
 		
@@ -105,16 +101,14 @@ public class MovieNight extends ListenerAdapter {
 			for (int i = 0; i < movies.size(); i++) {
 				
 				String movieName = movies.get(i).getName();
-				eb.addField(emojis[i] + " " + movieName, "", false);
+				eb.addField(Util.emojis[i] + " " + movieName, "", false);
 	
 			}
 			
 			event.getChannel().sendMessageEmbeds(eb.build()).queue(message -> {
 				
-				for (int i = 0; i < movies.size(); i++) {
-					
-					message.addReaction(emojis[i]).queue();
-					
+				for (int i = 0; i < movies.size(); i++) {					
+					message.addReaction(Emoji.fromUnicode(Util.emojis[i])).queue();					
 				}
 				
 			});
@@ -122,14 +116,12 @@ public class MovieNight extends ListenerAdapter {
 		}
 				
 		catch (URISyntaxException | IOException | InterruptedException e) {
-			
 			// handle this however you want
-			
 		}
 		
 	}
 	
-	public static void randomMovie(GuildMessageReceivedEvent event, String messageSent) {
+	public static void randomMovie(MessageReceivedEvent event, String messageSent) {
 		
 		try {
 			
@@ -163,16 +155,14 @@ public class MovieNight extends ListenerAdapter {
 		}
 				
 		catch (URISyntaxException | IOException | InterruptedException e) {
-
 			// handle this however you want
-			
 		}
 		
 	}
 
 	private static String[] getHeaders() throws URISyntaxException, IOException, InterruptedException {
 
-		String encoding = Base64.getEncoder().encodeToString(("username:password").getBytes());
+		String encoding = Base64.getEncoder().encodeToString(("<BACKEND_APP_USERNAME>:<BACKEND_APP_PASSWORD>").getBytes());
 
 		HttpRequest getRequest = HttpRequest.newBuilder()
 				.uri(new URI("http://localhost:8080/login"))
@@ -212,6 +202,21 @@ public class MovieNight extends ListenerAdapter {
 
 		HttpClient httpClient = HttpClient.newHttpClient();
 		httpClient.send(postRequest, BodyHandlers.ofString());
+		
+	}
+	
+	public static HttpRequest getPatchRequest(String url, String[] headers, String jsonRequest) throws URISyntaxException {
+		
+		HttpRequest patchRequest = HttpRequest.newBuilder()
+				.uri(new URI(url))
+				.header("Cookie", headers[2])
+				.header("Content-Type", "application/json")
+				.header("Authorization", "Basic " + headers[1])
+				.header("x-csrf-token", headers[0])
+				.method("PATCH", BodyPublishers.ofString(jsonRequest))
+				.build();
+		
+		return patchRequest;
 		
 	}
 
