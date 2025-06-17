@@ -11,7 +11,9 @@ public class CwisListener extends ListenerAdapter {
 						
 		try {
 			
-			WordGame.wordle(event);
+			if (event.isFromGuild()) {
+				WordGame.wordle(event);
+			}
 
 			if (messageSent.contains("https://twitter.com/") || messageSent.contains("https://x.com/")) {
 				
